@@ -1,7 +1,7 @@
 asgiref==3.8.1
 Django==5.2
 djangorestframework==3.16.0
-drf-yasg==1.21.10
+drf-yasg==1.21.10  # keep this version; compatible with DRF 3.16 and Django 5.2
 flake8==7.2.0
 inflection==0.5.1
 iniconfig==2.1.0

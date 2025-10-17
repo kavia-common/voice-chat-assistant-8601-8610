@@ -3,8 +3,20 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 from rest_framework import status
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+# Guard swagger imports to prevent startup failures if drf_yasg has issues
+try:
+    from drf_yasg.utils import swagger_auto_schema
+    from drf_yasg import openapi
+except Exception:  # pragma: no cover
+    def swagger_auto_schema(*args, **kwargs):  # type: ignore
+        def _wrap(fn):
+            return fn
+        return _wrap
+    class openapi:  # type: ignore
+        class Response:  # minimal shim
+            def __init__(self, description: str = "", examples=None):
+                self.description = description
+                self.examples = examples or {}
 
 from .serializers import AudioUploadSerializer, ChatRequestSerializer
 from .services.transcribe import transcribe_audio
@@ -14,7 +26,11 @@ from .utils.audio import save_uploaded_file_temporarily, safe_unlink
 
 @api_view(['GET'])
 def health(request):
-    """Simple health endpoint."""
+    """Simple health endpoint.
+
+    Returns:
+      200 OK with {"message": "Server is up!"}
+    """
     return Response({"message": "Server is up!"})
 
 
